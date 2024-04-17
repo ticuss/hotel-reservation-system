@@ -2,7 +2,14 @@
 # Hotel Reservation System - Backend
 
 
-This is the backend component of a Hotel Reservation System, built using Go Fiber and MongoDB. It allows you to manage hotel room reservations, user profiles, and more. Docker is used to containerize the application, making it easy to deploy and scale.
+## Project Outline
+
+- users -> book room from a hotel
+- admins -> manage reservations/bookings
+- Authentication and authorization -> JWT tokens
+- Hotels -> CRUD operations -> JSON
+- Rooms -> CRUD operations -> JSON
+- Scripts to populate the database
 
 ## Table of Contents
 
