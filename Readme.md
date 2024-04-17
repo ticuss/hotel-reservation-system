@@ -9,7 +9,7 @@
 - Authentication and authorization -> JWT tokens
 - Hotels -> CRUD operations -> JSON
 - Rooms -> CRUD operations -> JSON
-- Scripts to populate the database
+- Scripts to populate the database data base management, migrating data, etc.
 
 ## Table of Contents
 
@@ -47,7 +47,6 @@ Before you begin, ensure you have met the following requirements:
  - To-do 
 
 ### Configuration
- - To-do
 
 
 ## Usage
