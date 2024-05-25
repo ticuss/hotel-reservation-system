@@ -70,10 +70,10 @@ func (s *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, up *type
 	return up, nil
 }
 
-func NewMongoUserStore(client *mongo.Client, dbName string) *MongoUserStore {
+func NewMongoUserStore(client *mongo.Client) *MongoUserStore {
 	return &MongoUserStore{
 		client: client,
-		coll:   client.Database(dbName).Collection(userColl),
+		coll:   client.Database(DBNAME).Collection(userColl),
 	}
 }
 
