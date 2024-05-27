@@ -16,8 +16,26 @@ var (
 	Clinet     *mongo.Client
 	roomStore  db.RoomStore
 	hotelStore db.HotelStore
+	userStore  db.UserStore
 	ctx        = context.Background()
 )
+
+func seedUser(fname, lname, email string) {
+	user, err := types.NewUserFromParams(types.UserParams{
+		Email:     email,
+		FirstName: fname,
+		LastName:  lname,
+		Password:  "supersecret",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	user, err = userStore.InsertUser(context.TODO(), user)
+	fmt.Println("Inserted Used", user)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func seedHotel(name string, location string, rating int) {
 	hotel := types.Hotel{
@@ -65,6 +83,7 @@ func seedHotel(name string, location string, rating int) {
 func main() {
 	seedHotel("Bellucia", "Chisinau", 4)
 	seedHotel("TopKeke", "Asnieres", 1)
+	seedUser("james", "foo", "kek@kek.com")
 }
 
 func init() {
@@ -79,5 +98,6 @@ func init() {
 	}
 	hotelStore = db.NewMongoHotelStore(client)
 
+	userStore = db.NewMongoUserStore(client)
 	roomStore = db.NewMongoRoomStore(client, hotelStore)
 }
