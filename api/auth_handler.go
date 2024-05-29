@@ -39,6 +39,18 @@ type AuthParams struct {
 	Password string `json:"password"`
 }
 
+type genericResp struct {
+	Type string `json:"type"`
+	Msg  string `json:"message"`
+}
+
+func invalidCredentials(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusBadRequest).JSON(genericResp{
+		Type: "error",
+		Msg:  "invalid credentials",
+	})
+}
+
 func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	var params AuthParams
 	if err := c.BodyParser(&params); err != nil {
@@ -49,12 +61,13 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	if err != nil {
 		fmt.Println(err)
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return fmt.Errorf("invalid credentials")
+			return invalidCredentials(c)
 		}
 		return err
 	}
+
 	if !types.IsValidPassword(user.EncryptedPassword, params.Password) {
-		return fmt.Errorf("invalid credentials")
+		return invalidCredentials(c)
 	}
 
 	resp := AuthResponse{
