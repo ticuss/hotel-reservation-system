@@ -84,8 +84,6 @@ func (h *RoomHandler) HandleBookRoom(c *fiber.Ctx) error {
 		return err
 	}
 
-	fmt.Println("-----booking ", inserted)
-
 	return c.JSON(inserted)
 }
 

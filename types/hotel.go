@@ -12,14 +12,6 @@ type Hotel struct {
 
 type RoomType int
 
-const (
-	_ RoomType = iota // Skip 0
-	SingleRoomType
-	DoubleRoomType
-	SeaSideRoomType
-	DeluxeRoomType
-)
-
 type Room struct {
 	Size    string             "bson:\"size\" json:\"size\""
 	Price   float64            `bson:"price" json:"price"`

@@ -54,6 +54,7 @@ type User struct {
 	Email             string             `bson:"email" json:"email"`
 	EncryptedPassword string             `bson:"encryptedPassword" json:"-"`
 	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	IsAdmin           bool               `bson:"isAdmin" json:"isAdmin"`
 }
 
 func NewUserFromParams(params UserParams) (*User, error) {
