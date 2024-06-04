@@ -13,4 +13,5 @@ type Booking struct {
 	UserID     primitive.ObjectID `bson:"userID,omitempty" json:"userID,omitempty"`
 	RoomID     primitive.ObjectID `bson:"roomID,omitempty" json:"roomID,omitempty"`
 	NumPersons int                `bson:"numPersons,omitempty" json:"numPersons,omitempty"`
+	Canceled   bool               `bson:"canceled" json:"canceled"`
 }
