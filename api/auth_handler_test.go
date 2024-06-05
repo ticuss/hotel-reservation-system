@@ -12,6 +12,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/ticuss/hotel-reservation-system/db"
+	"github.com/ticuss/hotel-reservation-system/db/fixtures"
 	"github.com/ticuss/hotel-reservation-system/types"
 )
 
@@ -36,14 +37,14 @@ func insertTestUser(t *testing.T, userStore db.UserStore) *types.User {
 func TestAuthenticateSuccess(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-	insertedUser := insertTestUser(t, tdb.UserStore)
+	insertedUser := fixtures.AddUser(tdb.Store, "james", "foo", false)
 
 	app := fiber.New()
-	authHandler := NewAuthHandler(tdb.UserStore)
+	authHandler := NewAuthHandler(tdb.User)
 	app.Post("/auth", authHandler.HandleAuthenticate)
 	params := AuthParams{
-		Email:    "kek@kek.com",
-		Password: "supersecret",
+		Email:    "james@foo.com",
+		Password: "james_foo",
 	}
 	b, _ := json.Marshal(params)
 	req := httptest.NewRequest("POST", "/auth", bytes.NewReader(b))
@@ -70,10 +71,10 @@ func TestAuthenticateWithWrongPasswordFailure(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
 
-	insertTestUser(t, tdb.UserStore)
+	insertTestUser(t, tdb.User)
 
 	app := fiber.New()
-	authHandler := NewAuthHandler(tdb.UserStore)
+	authHandler := NewAuthHandler(tdb.User)
 	app.Post("/auth", authHandler.HandleAuthenticate)
 
 	params := AuthParams{
