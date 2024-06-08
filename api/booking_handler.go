@@ -50,7 +50,6 @@ func (h *BookingHandler) HandleGetBookings(c *fiber.Ctx) error {
 	return c.JSON(booking)
 }
 
-// TODO This needs to be user auth
 func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 	id := c.Params("id")
 	booking, err := h.store.Booking.GetBookingByID(c.Context(), id)
