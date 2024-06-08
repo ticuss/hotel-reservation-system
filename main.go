@@ -3,13 +3,11 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
-	"time"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/ticuss/hotel-reservation-system/api"
-	"github.com/ticuss/hotel-reservation-system/api/middleware"
 	"github.com/ticuss/hotel-reservation-system/db"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -21,13 +19,15 @@ const (
 
 var config = fiber.Config{
 	ErrorHandler: func(c *fiber.Ctx, err error) error {
-		return c.JSON(map[string]string{"error": err.Error()})
+		if apiError, ok := err.(api.Error); ok {
+			return c.Status(apiError.Code).JSON(apiError)
+		}
+		apiError := api.NewError(http.StatusInternalServerError, "Internal Server Error")
+		return c.Status(apiError.Code).JSON(apiError)
 	},
 }
 
 func main() {
-	now := time.Now()
-	fmt.Println(now)
 	listenAddr := flag.String("listenAddr", ":5001", "The server listen address")
 	flag.Parse()
 
@@ -53,8 +53,8 @@ func main() {
 		bookingHandler = api.NewBookingHandler(store)
 		app            = fiber.New(config)
 		auth           = app.Group("/api")
-		apiv1          = app.Group("/api/v1", middleware.JWTAuthentication(userStore))
-		admin          = apiv1.Group("/admin", middleware.AdminAuth)
+		apiv1          = app.Group("/api/v1", api.JWTAuthentication(userStore))
+		admin          = apiv1.Group("/admin", api.AdminAuth)
 	)
 
 	// auth

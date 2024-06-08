@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -57,9 +56,7 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 		return err
 	}
 	user, err := h.userStore.GetUserByEmail(c.Context(), params.Email)
-	fmt.Println(params)
 	if err != nil {
-		fmt.Println(err)
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return invalidCredentials(c)
 		}
@@ -89,7 +86,6 @@ func CreateTokenFromUser(user *types.User) string {
 	secret := os.Getenv("JWT_SECRET")
 	tokenStr, err := token.SignedString([]byte(secret))
 	if err != nil {
-		fmt.Println("failed to sign token", err)
 		return tokenStr
 	}
 	return tokenStr

@@ -22,7 +22,7 @@ func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
 	id := c.Params("id")
 	booking, err := h.store.Booking.GetBookingByID(c.Context(), id)
 	if err != nil {
-		return err
+		return ErrResourceNotFound("booking")
 	}
 	user, err := getAuthUser(c)
 	if err != nil {
@@ -55,7 +55,7 @@ func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 	booking, err := h.store.Booking.GetBookingByID(c.Context(), id)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "user not found"})
+			return ErrResourceNotFound("booking")
 		}
 		return err
 	}

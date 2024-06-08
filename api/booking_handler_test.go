@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/ticuss/hotel-reservation-system/api/middleware"
 	"github.com/ticuss/hotel-reservation-system/db/fixtures"
 	"github.com/ticuss/hotel-reservation-system/types"
 )
@@ -26,8 +25,8 @@ func TestUserGetBooking(t *testing.T) {
 		till           = time.Now().AddDate(0, 0, 5)
 		bookingHandler = NewBookingHandler(tdb.Store)
 		booking        = fixtures.AddBooking(tdb.Store, user.ID, room.ID, from, till)
-		app            = fiber.New()
-		route          = app.Group("/", middleware.JWTAuthentication(tdb.User))
+		app            = fiber.New(fiber.Config{ErrorHandler: ErrorHandler})
+		route          = app.Group("/", JWTAuthentication(tdb.User))
 	)
 	route.Get("/:id", bookingHandler.HandleGetBooking)
 	req := httptest.NewRequest("GET", fmt.Sprintf("/%s", booking.ID.Hex()), nil)
@@ -42,7 +41,6 @@ func TestUserGetBooking(t *testing.T) {
 	}
 
 	var bookingResp *types.Booking
-	fmt.Println(resp.Body)
 	if err := json.NewDecoder(resp.Body).Decode(&bookingResp); err != nil {
 		t.Fatal(err)
 	}
@@ -56,7 +54,6 @@ func TestUserGetBooking(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(resp.StatusCode)
 	if resp.StatusCode == http.StatusOK {
 		t.Fatalf("Expected a non 200 response code received %d", resp.StatusCode)
 	}
@@ -72,8 +69,8 @@ func TestAdminGetBooking(t *testing.T) {
 		room           = fixtures.AddRoom(tdb.Store, true, "small", 99.9, hotel.ID)
 		from           = time.Now()
 		till           = time.Now().AddDate(0, 0, 5)
-		app            = fiber.New()
-		admin          = app.Group("/", middleware.JWTAuthentication(tdb.User), middleware.AdminAuth)
+		app            = fiber.New(fiber.Config{ErrorHandler: ErrorHandler})
+		admin          = app.Group("/", JWTAuthentication(tdb.User), AdminAuth)
 		booking        = fixtures.AddBooking(tdb.Store, user.ID, room.ID, from, till)
 		bookingHandler = NewBookingHandler(tdb.Store)
 	)
@@ -83,7 +80,6 @@ func TestAdminGetBooking(t *testing.T) {
 	req := httptest.NewRequest("GET", "/", nil)
 	req.Header.Add("X-Api-Token", CreateTokenFromUser(adminUser))
 	resp, err := app.Test(req)
-	fmt.Println(resp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,11 +106,10 @@ func TestAdminGetBooking(t *testing.T) {
 	req = httptest.NewRequest("GET", "/", nil)
 	req.Header.Add("X-Api-Token", CreateTokenFromUser(user))
 	resp, err = app.Test(req)
-	fmt.Println(resp)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if resp.StatusCode == http.StatusOK {
-		t.Fatalf("Expected a non 200 response code received %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("Expected a StatusUnauthorized  code received %d", resp.StatusCode)
 	}
 }

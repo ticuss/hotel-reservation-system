@@ -25,7 +25,7 @@ func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	err := h.userStore.DeleteUser(c.Context(), id)
 	if err != nil {
-		return err
+		return ErrInvalidID()
 	}
 	return c.JSON(fiber.Map{"message": "user deleted", "userID": id})
 }
@@ -34,7 +34,7 @@ func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var params types.UserParams
 	if err := c.BodyParser(&params); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 
 	if errors := params.Validate(); len(errors) > 0 {
@@ -86,7 +86,7 @@ func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	user, err := h.userStore.GetUserByID(c.Context(), id)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "user not found"})
+			return ErrResourceNotFound("user")
 		}
 		return err
 	}
