@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/ticuss/hotel-reservation-system/db"
 	"go.mongodb.org/mongo-driver/bson"
@@ -31,12 +33,37 @@ func (h *HotelHandler) HandleGetRooms(c *fiber.Ctx) error {
 	return c.JSON(rooms)
 }
 
+type ResourceResp struct {
+	Data    any `json:"data"`
+	Results int `json:"results"`
+	Page    int `json:"page"`
+}
+
+type HotelQueryParams struct {
+	db.Pagination
+	Rating int
+}
+
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
-	hotels, err := h.store.Hotel.GetHotels(c.Context(), db.Map{})
-	if err != nil {
-		return err
+	var params HotelQueryParams
+
+	if err := c.QueryParser(&params); err != nil {
+		return ErrBadRequest()
 	}
-	return c.JSON(hotels)
+	fmt.Println(params.Rating)
+	filter := db.Map{
+		"rating": &params.Rating,
+	}
+	hotels, err := h.store.Hotel.GetHotels(c.Context(), filter, &params.Pagination)
+	if err != nil {
+		return ErrResourceNotFound("hotels")
+	}
+	resp := ResourceResp{
+		Results: len(hotels),
+		Data:    hotels,
+		Page:    int(params.Page),
+	}
+	return c.JSON(resp)
 }
 
 func (h *HotelHandler) HandleGetHotel(c *fiber.Ctx) error {

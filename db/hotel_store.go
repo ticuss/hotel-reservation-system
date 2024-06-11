@@ -2,17 +2,19 @@ package db
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ticuss/hotel-reservation-system/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type HotelStore interface {
 	Insert(context.Context, *types.Hotel) (*types.Hotel, error)
 	Update(context.Context, Map, Map) error
-	GetHotels(context.Context, Map) ([]types.Hotel, error)
+	GetHotels(context.Context, Map, *Pagination) ([]types.Hotel, error)
 	GetHotelById(context.Context, string) (*types.Hotel, error)
 }
 
@@ -42,8 +44,10 @@ func (s *MongoHotelStore) Update(ctx context.Context, filter Map, update Map) er
 	return err
 }
 
-func (s *MongoHotelStore) GetHotels(ctx context.Context, filter Map) ([]types.Hotel, error) {
-	resp, err := s.coll.Find(ctx, filter)
+func (s *MongoHotelStore) GetHotels(ctx context.Context, filter Map, pag *Pagination) ([]types.Hotel, error) {
+	opts := options.FindOptions{}
+	opts.SetSkip((pag.Page - 1) * pag.Limit).SetLimit(pag.Limit)
+	resp, err := s.coll.Find(ctx, filter, &opts)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +55,8 @@ func (s *MongoHotelStore) GetHotels(ctx context.Context, filter Map) ([]types.Ho
 	if err := resp.All(ctx, &hotels); err != nil {
 		return nil, err
 	}
+
+	fmt.Println("resp-->", hotels)
 	return hotels, nil
 }
 

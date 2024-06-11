@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/ticuss/hotel-reservation-system/api"
@@ -46,15 +47,17 @@ func main() {
 	}
 
 	user := fixtures.AddUser(store, "james", "foo", false)
-	fmt.Printf("User: %v\n", api.CreateTokenFromUser(user))
 	admin := fixtures.AddUser(store, "kek", "kaka", true)
+	fmt.Printf("User: %v\n", api.CreateTokenFromUser(user))
 	fmt.Printf("User: %v\n", api.CreateTokenFromUser(admin))
 	hotel := fixtures.AddHotel(store, "TopKeke", "Asnieres", 1, nil)
-
 	room := fixtures.AddRoom(store, true, "small", 99.9, hotel.ID)
-
-	booking := fixtures.AddBooking(store, user.ID, room.ID, time.Now(), time.Now().AddDate(0, 0, 1))
-	fmt.Printf("Booking: %v\n", booking)
+	_ = fixtures.AddBooking(store, user.ID, room.ID, time.Now(), time.Now().AddDate(0, 0, 1))
+	for i := 0; i < 100; i++ {
+		name := fmt.Sprintf("Random Hotel name: %v", i)
+		location := fmt.Sprintf("Random Hotel location: %v", i)
+		fixtures.AddHotel(store, name, location, rand.Intn(5)+1, nil)
+	}
 }
 
 func init() {
