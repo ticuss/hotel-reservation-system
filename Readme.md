@@ -1,6 +1,14 @@
-
 # Hotel Reservation System - Backend
 
+# Project env variables
+
+```
+LISTEN_ADDRESS=:3000
+JWT_SECRET=secretpassword
+MONGO_DB_NAME=hotel_reservation-system
+MONGO_DB_URL=mongodb://localhost:27017
+
+```
 
 ## Project Outline
 
@@ -43,21 +51,16 @@ Before you begin, ensure you have met the following requirements:
 
 ### Installation
 
-
-
-
-
- - To-do 
+- To-do
 
 ### Configuration
 
-
 ## Usage
- - To-do
 
+- To-do
 
 ## API Endpoints
 
 ## Docker
- - To-do
 
+- To-do

@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/ticuss/hotel-reservation-system/api"
 	"github.com/ticuss/hotel-reservation-system/db"
 	"github.com/ticuss/hotel-reservation-system/db/fixtures"
@@ -25,12 +27,18 @@ var (
 
 func main() {
 	var err error
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(db.DBURI))
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
+
+	mongoEndpoint := os.Getenv("MONGO_DB_URL")
+	mongoDbName := os.Getenv(db.MongoDBNameEnvName)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoEndpoint))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := client.Database(db.DBNAME).Drop(ctx); err != nil {
+	if err := client.Database(mongoDbName).Drop(ctx); err != nil {
 		log.Fatal(err)
 	}
 	hotelStore = db.NewMongoHotelStore(client)

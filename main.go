@@ -2,16 +2,22 @@ package main
 
 import (
 	"context"
-	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"github.com/ticuss/hotel-reservation-system/api"
 	"github.com/ticuss/hotel-reservation-system/db"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+// Configuration
+// 1. MongoDB endpoint
+// 2. Listen address of out http server
+// 3. JWT secret
 
 const (
 	userColl = "users"
@@ -28,10 +34,8 @@ var config = fiber.Config{
 }
 
 func main() {
-	listenAddr := flag.String("listenAddr", ":5001", "The server listen address")
-	flag.Parse()
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
+	mongoEndoint := os.Getenv("MONGO_DB_URL")
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mongoEndoint))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,9 +88,17 @@ func main() {
 	// admin handlers
 	admin.Get("/booking", bookingHandler.HandleGetBookings)
 	apiv1.Get("/booking/:id/cancel", bookingHandler.HandleCancelBooking)
-	app.Listen(*listenAddr)
+
+	listenAddr := os.Getenv("HTTP_LISTEN_ADDRESS")
+	app.Listen(listenAddr)
 }
 
 func handleFoo(c *fiber.Ctx) error {
 	return c.JSON(map[string]string{"msg": "Works good"})
+}
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }
