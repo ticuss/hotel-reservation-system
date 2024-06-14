@@ -89,8 +89,8 @@ func main() {
 	admin.Get("/booking", bookingHandler.HandleGetBookings)
 	apiv1.Get("/booking/:id/cancel", bookingHandler.HandleCancelBooking)
 
-	listenAddr := os.Getenv("HTTP_LISTEN_ADDRESS")
-	app.Listen(listenAddr)
+	// listenAddr := os.Getenv("HTTP_LISTEN_ADDRESS")
+	app.Listen(":3000")
 }
 
 func handleFoo(c *fiber.Ctx) error {
